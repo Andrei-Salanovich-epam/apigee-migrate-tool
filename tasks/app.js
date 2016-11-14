@@ -6,36 +6,50 @@ var apps;
 var MAX_ITEMS_AT_ONCE = 50;
 module.exports = function(grunt) {
 	'use strict';
-	grunt.registerTask('exportApps', 'Export all apps from org ' + apigee.from.org + " [" + apigee.from.version + "]", function() {
+	grunt.registerTask('exportApps', 'Export all apps from org ' + apigee.from.org + ' [' + apigee.from.version + ']', function() {
 		var url = apigee.from.url;
 		var org = apigee.from.org;
 		var userid = apigee.from.userid;
 		var passwd = apigee.from.passwd;
-		var filepath = grunt.config.get("exportApps.dest.data");
+		var filepath = grunt.config.get('exportApps.dest.data');
 		var done_count =0;
 		var apps_done_count =0;
 		var err_count = 0;
 		var dev_url;
 		var done = this.async();
-		grunt.verbose.write("getting developers..." + url);
-		url = url + "/v1/organizations/" + org + "/developers";
+
+		var pluralAppContainerName = 'developers';
+
+		var getItemFolderIdentity = function(itmDetails) 
+		{
+			if (pluralAppContainerName == 'developers')
+				return itmDetails.email; 
+			else if (pluralAppContainerName == 'companies')
+				return itmDetails.name;
+
+			return 'error';
+		}
+
+		grunt.verbose.write('getting '+pluralAppContainerName+'...' + url);
+		url = url + '/v1/organizations/' + org + '/'+pluralAppContainerName;
 
 		request(url, function (error, response, body) {
 			if (!error && response.statusCode == 200) {
 			    var devs =  JSON.parse(body);
-			    grunt.log.writeln("Found " + devs.length + " developers. Exporting their apps...")
+			    grunt.log.writeln('Found ' + devs.length + ' '+pluralAppContainerName+'. Exporting their apps...')
 			    async.forEachLimit(devs, MAX_ITEMS_AT_ONCE, function(devEmail, callback) {
 
-			    	dev_url = url + "/" + devEmail;
+			    	dev_url = url + '/' + devEmail;
 			    	//Call developer details
 					request(dev_url, function (dev_error, dev_response, dev_body) {
 						if (!dev_error && dev_response.statusCode == 200) {
 							//grunt.verbose.write(dev_body);
-						    var dev_detail =  JSON.parse(dev_body);
-						    var dev_folder = filepath + "/" + dev_detail.email;
+						    var item_detail =  JSON.parse(dev_body);
+						    var itemFolderIdentity = getItemFolderIdentity(item_detail);
+						    var item_folder = filepath + '/' + itemFolderIdentity;
 						    var devFolderExists = false;
 						    //Get developer Apps
-						    var apps_url = url + "/" + dev_detail.email + "/apps?expand=true";
+						    var apps_url = url + '/' + itemFolderIdentity + '/apps?expand=true';
 						    grunt.verbose.writeln(apps_url);
 							request(apps_url, function (app_error, app_response, app_body) {
 								if (!app_error && app_response.statusCode == 200) {
@@ -47,15 +61,15 @@ module.exports = function(grunt) {
 								    if (apps)
 								    {
 								  		if (apps.length > 0 && devFolderExists == false) { 
-								  			grunt.file.mkdir(dev_folder);
+								  			grunt.file.mkdir(item_folder);
 								  			devFolderExists = true;
-								  			grunt.log.writeln("dev " + devEmail + " has " + apps.length + " apps, exporting...");
+								  			grunt.log.writeln('dev ' + devEmail + ' has ' + apps.length + ' apps, exporting...');
 								  		}
 									    for (var j = 0; j < apps.length; j++) {
 									    	var app = apps[j];
 									    	grunt.verbose.writeln(app);
-									    	var file_name  = dev_folder + "/" + app.appId;
-									    	grunt.verbose.writeln("writing file: " + file_name);
+									    	var file_name  = item_folder + '/' + app.appId;
+									    	grunt.verbose.writeln('writing file: ' + file_name);
 									    	grunt.file.write(file_name, JSON.stringify(app));
 									    	apps_done_count++;
 									    };
@@ -83,7 +97,7 @@ module.exports = function(grunt) {
 						grunt.log.error(err);
 			        	return done(false);
 			        }
-			        grunt.log.ok('Successfully processed ' + (done_count-err_count) + ' from ' + devs.length + ' developers. Exported ' + apps_done_count + ' apps');
+			        grunt.log.ok('Successfully processed ' + (done_count-err_count) + ' from ' + devs.length + ' '+pluralAppContainerName+'. Exported ' + apps_done_count + ' apps');
 			        done();
 			    });  
 			} 
@@ -96,14 +110,16 @@ module.exports = function(grunt) {
 
 
 
-	grunt.registerMultiTask('importApps', 'Import all apps to org ' + apigee.to.org + " [" + apigee.to.version + "]", function() {
+	grunt.registerMultiTask('importApps', 'Import all apps to org ' + apigee.to.org + ' [' + apigee.to.version + ']', function() {
 		var url = apigee.to.url;
 		var org = apigee.to.org;
 		var userid = apigee.to.userid;
 		var passwd = apigee.to.passwd;
 		var done_count =0;
 		var files;
-		url = url + "/v1/organizations/" + org + "/developers/";
+		var pluralAppContainerName = 'companies';
+
+		url = url + '/v1/organizations/' + org + '/'+pluralAppContainerName+'/';
 		var done = this.async();
 		var opts = {flatten: false};
 		var f = grunt.option('src');
@@ -119,12 +135,12 @@ module.exports = function(grunt) {
 
 		async.eachSeries(files, function (filepath,callback) {
 			console.log(filepath);
-			var folders = filepath.split("/");
+			var folders = filepath.split('/');
 			var dev = folders[folders.length - 2];
 			var content = grunt.file.read(filepath);
 			var app = JSON.parse(content);
 			var appCredentials = app['credentials'];
-			grunt.verbose.writeln("Creating app : " + app.name + " under developer " + dev);
+			grunt.verbose.writeln('Creating app : ' + app.name + ' under developer ' + dev);
 
 			delete app['appId'];
 			delete app['status'];
@@ -139,8 +155,8 @@ module.exports = function(grunt) {
 			delete app['credentials'];
 
 			grunt.verbose.writeln(JSON.stringify(app));
-			var app_url = url + dev + "/apps";
-			grunt.verbose.writeln("Creating App " + app_url);
+			var app_url = url + dev + '/apps';
+			grunt.verbose.writeln('Creating App ' + app_url);
 
 			request.post({
 			  headers: {'Content-Type' : 'application/json'},
@@ -157,8 +173,8 @@ module.exports = function(grunt) {
 					  grunt.verbose.writeln('Resp [' + response.statusCode + '] for create app  ' + this.app_url + ' -> ' + body);
 					  var app_resp = JSON.parse(body);
 					  var client_key = app_resp.credentials[0].consumerKey;
-					  //grunt.verbose.writeln("deleting key -> " + client_key);
-			          //grunt.verbose.writeln("KEY Delete URL -> " + delete_url);
+					  //grunt.verbose.writeln('deleting key -> ' + client_key);
+			          //grunt.verbose.writeln('KEY Delete URL -> ' + delete_url);
 			          
 			          // Import app keys and secrets
 			          appCredentials.forEach(function (appCredential){
@@ -167,8 +183,8 @@ module.exports = function(grunt) {
 				          keySecretPair.consumerSecret = appCredential.consumerSecret;
 				          grunt.verbose.writeln(JSON.stringify(keySecretPair));
 				          
-				          var create_keys_url = app_url + "/" + app['name'] + "/keys/create";
-				          grunt.verbose.writeln("creating keys, url: "+ create_keys_url);
+				          var create_keys_url = app_url + '/' + app['name'] + '/keys/create';
+				          grunt.verbose.writeln('creating keys, url: '+ create_keys_url);
 
 				          request.post({
 							  headers: {'Content-Type' : 'application/json'},
@@ -181,7 +197,7 @@ module.exports = function(grunt) {
 							if (cstatus == 200 || cstatus == 201)
 							{
 								// Associate keys with product
-								var assosiate_keys_url = app_url + "/" + app['name'] + "/keys/" + appCredential.consumerKey;
+								var assosiate_keys_url = app_url + '/' + app['name'] + '/keys/' + appCredential.consumerKey;
 								var products = {};
 								products.apiProducts = appCredential.apiProducts.map(function(apiProd){
 									return apiProd.apiproduct;
@@ -240,7 +256,7 @@ module.exports = function(grunt) {
 				}
 				catch(err)
 				{
-					grunt.log.error("ERROR - from App URL : " + app_url );
+					grunt.log.error('ERROR - from App URL : ' + app_url );
 					grunt.log.error(body);
 				}
 
@@ -252,14 +268,16 @@ module.exports = function(grunt) {
 	});
 
 
-	grunt.registerMultiTask('deleteApps', 'Delete all apps from org ' + apigee.to.org + " [" + apigee.to.version + "]", function() {
+	grunt.registerMultiTask('deleteApps', 'Delete all apps from org ' + apigee.to.org + ' [' + apigee.to.version + ']', function() {
 		var url = apigee.to.url;
 		var org = apigee.to.org;
 		var userid = apigee.to.userid;
 		var passwd = apigee.to.passwd;
 		var done_count =0;
 		var files;
-		url = url + "/v1/organizations/" + org + "/developers/";
+		var pluralAppContainerName = 'developers';
+
+		url = url + '/v1/organizations/' + org + '/'+pluralAppContainerName+'/';
 		var done = this.async();
 		var opts = {flatten: false};
 		var f = grunt.option('src');
@@ -274,12 +292,12 @@ module.exports = function(grunt) {
 		}
 		var done = this.async();
 		files.forEach(function(filepath) {
-			grunt.verbose.writeln("processing file " + filepath);
-			var folders = filepath.split("/");
+			grunt.verbose.writeln('processing file ' + filepath);
+			var folders = filepath.split('/');
 			var dev = folders[folders.length - 2];
 			var content = grunt.file.read(filepath);
 			var app = JSON.parse(content);
-			var app_del_url = url + dev + "/apps/" + app.name;
+			var app_del_url = url + dev + '/apps/' + app.name;
 			grunt.verbose.writeln(app_del_url);
 			request.del(app_del_url,function(error, response, body){
 			   var status = 999;
