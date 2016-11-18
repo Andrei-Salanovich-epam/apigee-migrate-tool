@@ -118,6 +118,8 @@ module.exports = function(grunt) {
 			files = grunt.file.expand(opts,f);
 		}
 		url = url + "/v1/organizations/" + org + "/keyvaluemaps/";
+
+		if (!files || files.length == 0) return;
 		var done = this.async();
 		files.forEach(function(filepath) {
 			var content = grunt.file.read(filepath);

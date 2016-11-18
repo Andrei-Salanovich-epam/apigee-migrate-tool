@@ -226,6 +226,8 @@ module.exports.delete = function(grunt, files, info, done) {
 
     url = url + '/v1/organizations/' + org + '/' + info.plural  + '/';    
     var opts = { flatten: false };      
+    if (files.length == 0) done();
+    
     files.forEach(function(filepath) {
         grunt.verbose.writeln('processing file ' + filepath);
         var folders = filepath.split('/');

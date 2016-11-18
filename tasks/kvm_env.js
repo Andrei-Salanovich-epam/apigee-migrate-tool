@@ -145,7 +145,7 @@ module.exports = function(grunt) {
 		var done_count =0;
 		var files;
 		url = url + "/v1/organizations/" + org + "/";
-		var done = this.async();
+
 		var opts = {flatten: false};
 		var f = grunt.option('src');
 		if (f)
@@ -157,6 +157,9 @@ module.exports = function(grunt) {
 		{
 			files = this.filesSrc;
 		}
+		
+		if (!files || files.length == 0) return;
+
 		var done = this.async();
 		files.forEach(function(filepath) {
 			grunt.verbose.writeln("processing file " + filepath);

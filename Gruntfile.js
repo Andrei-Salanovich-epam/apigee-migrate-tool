@@ -114,7 +114,7 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['availabletasks']);
   grunt.registerTask('exportAll', ['exportDevs','exportCompanies','exportProducts','exportDevApps','exportCompanyApps', 'exportProxies', 'exportOrgKVM', 'exportEnvKVM', 'exportProxyKVM']);
   grunt.registerTask('importAll', ['importProxies','importDevs','importCompanies','importProducts', 'importDevApps', 'importCompanyApps', 'importOrgKVM', 'importEnvKVM', 'importProxyKVM']);
-  grunt.registerTask('deleteAll', ['warn','deleteDevApps', 'deleteCompanyApps' ,/*'deleteCompanies','deleteProducts', 'deleteDevs', 'deleteProxies', 'deleteOrgKVM', 'deleteEnvKVM', 'deleteProxyKVM'*/]);
+  grunt.registerTask('deleteAll', ['warn','deleteDevApps', 'deleteCompanyApps' ,'deleteCompanies','deleteProducts', 'deleteDevs', 'deleteProxies', 'deleteOrgKVM', 'deleteEnvKVM', 'deleteProxyKVM']);
 
   grunt.registerTask('warn', 'Display Warning', function() {
       var readline = require('readline');
