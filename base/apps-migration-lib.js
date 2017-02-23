@@ -50,6 +50,7 @@ module.exports.export = function(grunt, filepath, info, done) {
                         }
                         else
                         {
+							// grunt.log.error("[ERROR]: url %s response: %s body: %s", apps_url, JSON.stringify(app_response));
                             grunt.log.error(error);
                             err_count++;
                         }
@@ -69,7 +70,7 @@ module.exports.export = function(grunt, filepath, info, done) {
 			} 
 			else
 			{
-				grunt.log.error(error);
+				grunt.log.error("[ERROR]: url %s response: %s ", url, response.statusCode);
 			}
 		}).auth(userid, passwd, true);        
 };
@@ -212,8 +213,6 @@ module.exports.import = function(grunt, files, info, done) {
 				}
 
 			}.bind( {app_url: app_url}) ).auth(userid, passwd, true);	
-
-
 		});
 };
 
@@ -236,7 +235,7 @@ module.exports.delete = function(grunt, files, info, done) {
         var app = JSON.parse(content);
         var app_del_url = url + dev + '/apps/' + app.name;
         grunt.verbose.writeln(app_del_url);
-        request.del(app_del_url,function(error, response, body){
+        request.del(app_del_url, function(error, response, body){
             var status = 999;
             if (response)	
             status = response.statusCode;
@@ -252,4 +251,124 @@ module.exports.delete = function(grunt, files, info, done) {
             }
         }.bind( {app_del_url: app_del_url}) ).auth(userid, passwd, true);	
     });
+};
+
+module.exports.updateKey = function(grunt, files, info, done) {
+	var url = apigee.to.url;
+	var org = apigee.to.org;
+	var userid = apigee.to.userid;
+	var passwd = apigee.to.passwd;
+	var done_count =0;
+	var files;
+
+	url = url + '/v1/organizations/' + org + '/' + info.plural + '/';  
+	var opts = {flatten: false};
+	
+
+	async.eachSeries(files, function (filepath,callback) {
+		console.log(filepath);
+		var folders = filepath.split('/');
+		var dev = folders[folders.length - 2];
+		var content = grunt.file.read(filepath);
+		var app = JSON.parse(content);
+		var appCredentials = app['credentials'];
+		grunt.verbose.writeln('Updating app : ' + app.name + ' under developer ' + dev);
+
+		delete app['appId'];
+		delete app['status'];
+		delete app['developerId'];
+		delete app['lastModifiedAt'];
+		delete app['lastModifiedBy'];
+		delete app['createdAt'];
+		delete app['createdBy'];
+		delete app['status'];
+		delete app['appFamily'];
+		delete app['accessType'];
+		delete app['credentials'];
+
+
+		grunt.verbose.writeln(JSON.stringify(app));
+
+		// Import app keys and secrets
+		async.each(appCredentials, function (appCredential, credCallback){
+			var app_url = url + dev + '/apps/' + app.name + '/keys/' + appCredential.consumerKey;
+			grunt.verbose.writeln('Updating App Key' + app_url);
+
+			request.post({
+					headers: {'Content-Type' : 'application/json'},
+					url:     app_url,
+					body:    JSON.stringify({ apiProducts: ["Provisioning"], attributes: app.attributes})
+				}, 
+				function (error, response, body) {
+					var cstatus = 999;
+					if (response) cstatus = response.statusCode;
+						grunt.verbose.writeln('Resp [' + cstatus + '] for key update ' + app_url);
+
+					if (cstatus >= 300){
+						grunt.log.error('Error: ' + error);
+					}					
+					callback();
+			}.bind( {app_url: app_url})).auth(userid, passwd, true);
+		});
+	},  function(error) { done(); })
+};
+
+
+module.exports.deleteProductKey = function(grunt, files, info, done) {
+	var url = apigee.to.url;
+	var org = apigee.to.org;
+	var userid = apigee.to.userid;
+	var passwd = apigee.to.passwd;
+	var done_count =0;
+	var files;
+
+	url = url + '/v1/organizations/' + org + '/' + info.plural + '/';  
+	var opts = {flatten: false};
+	
+
+	async.eachSeries(files, function (filepath,callback) {
+		console.log(filepath);
+		var folders = filepath.split('/');
+		var dev = folders[folders.length - 2];
+		var content = grunt.file.read(filepath);
+		var app = JSON.parse(content);
+		var appCredentials = app['credentials'];
+		grunt.verbose.writeln('Updating app : ' + app.name + ' under developer ' + dev);
+
+		delete app['appId'];
+		delete app['status'];
+		delete app['developerId'];
+		delete app['lastModifiedAt'];
+		delete app['lastModifiedBy'];
+		delete app['createdAt'];
+		delete app['createdBy'];
+		delete app['status'];
+		delete app['appFamily'];
+		delete app['accessType'];
+		delete app['credentials'];
+
+
+		grunt.verbose.writeln(JSON.stringify(app));
+
+		// Import app keys and secrets
+		async.each(appCredentials, function (appCredential, credCallback){
+			var app_url = url + dev + '/apps/' + app.name + '/keys/' + appCredential.consumerKey + '/apiproducts/Provisioning%20APIs';
+			grunt.verbose.writeln('Updating App Key' + app_url);
+
+			request.del({
+					headers: {'Content-Type' : 'application/json'},
+					url:     app_url					
+				}, 
+				function (error, response, body) {
+					var cstatus = 999;
+					if (response) cstatus = response.statusCode;
+						grunt.verbose.writeln('Resp [' + cstatus + '] for key update ' + app_url);
+
+					if (cstatus >= 300){
+						grunt.log.error('Error: ' + error);
+					}					
+					callback();
+			}.bind( {app_url: app_url})).auth(userid, passwd, true);
+		});
+	},  function(error) { done(); })
 };

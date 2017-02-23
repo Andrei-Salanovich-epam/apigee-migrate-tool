@@ -79,6 +79,22 @@ module.exports = function(grunt) {
 		migration.import(grunt, files, developerAppsInfo, done);
 	});
 
+	grunt.registerMultiTask('updateDevApps', 'Update Dev keys product link ' + apigee.to.org + ' [' + apigee.to.version + ']', function() {		
+		var done = this.async();
+		var files;	
+		var f = grunt.option('src');
+		if (f)
+		{
+			grunt.verbose.writeln('src pattern = ' + f);
+			files = grunt.file.expand(opts,f);
+		}
+		else
+		{
+			files = this.filesSrc;
+		}
+		migration.updateKey(grunt, files, developerAppsInfo, done);
+	});
+
 	grunt.registerMultiTask('importCompanyApps', 'Import all apps to org ' + apigee.to.org + ' [' + apigee.to.version + ']', function() {		
 		var done = this.async();
 		var files;	
@@ -94,6 +110,56 @@ module.exports = function(grunt) {
 		}
 		migration.import(grunt, files, companyAppsInfo, done);
 	});
+
+	grunt.registerMultiTask('updateCompanyApps', 'Update Company keys product link ' + apigee.to.org + ' [' + apigee.to.version + ']', function() {		
+		var done = this.async();
+		var files;	
+		var f = grunt.option('src');
+		if (f)
+		{
+			grunt.verbose.writeln('src pattern = ' + f);
+			files = grunt.file.expand(opts,f);
+		}
+		else
+		{
+			files = this.filesSrc;
+		}
+		migration.updateKey(grunt, files, companyAppsInfo, done);
+	});
+
+	grunt.registerMultiTask('deleteCompanyAppsProduct', 'Delete appkeys from product ' + apigee.to.org + ' [' + apigee.to.version + ']', function() {		
+		var done = this.async();
+		var files;	
+		var f = grunt.option('src');
+		if (f)
+		{
+			grunt.verbose.writeln('src pattern = ' + f);
+			files = grunt.file.expand(opts,f);
+		}
+		else
+		{
+			files = this.filesSrc;
+		}
+		migration.deleteProductKey(grunt, files, companyAppsInfo, done);
+	});
+
+	grunt.registerMultiTask('deleteDevAppsProduct', 'Delete appkeys from product ' + apigee.to.org + ' [' + apigee.to.version + ']', function() {		
+		var done = this.async();
+		var files;	
+		var f = grunt.option('src');
+		if (f)
+		{
+			grunt.verbose.writeln('src pattern = ' + f);
+			files = grunt.file.expand(opts,f);
+		}
+		else
+		{
+			files = this.filesSrc;
+		}
+		migration.deleteProductKey(grunt, files, developerAppsInfo, done);
+	});
+
+	
 };
 
 

@@ -14,7 +14,7 @@ module.exports.export = function(grunt, filepath, info, getFileName, done) {
 		var err_count =0;
 
 		grunt.verbose.writeln('getting '+info.plural+'...' + url);
-		url = url + '/v1/organizations/' + org + '/'+info.plural;
+		url = url + '/v1/organizations/' + org + '/' + info.plural;
 
 		request(url, function (error, response, body) {
 			if (!error && response.statusCode == 200) {
@@ -58,8 +58,8 @@ module.exports.export = function(grunt, filepath, info, getFileName, done) {
 			    });
 			} 
 			else
-			{
-				grunt.log.error(error);
+			{				
+				grunt.log.error('[ERROR] url: %s status: %s error: %s',url, response.statusCode, error);
 			}
 		}).auth(userid, passwd, true);
 };
@@ -90,7 +90,7 @@ module.exports.import = function(grunt, files, info, done) {
 					if (response)	
 					 status = response.statusCode;
 					grunt.verbose.writeln('Resp [' + status + '] for '+info.single+' creation ' + this.url + ' -> ' + body);
-					if (error || status!=201) {
+					if (error || status != 201) {
 					  	grunt.verbose.error('ERROR Resp [' + status + '] for '+info.single+' creation ' + this.url + ' -> ' + body); 
 					  	err_count++;
 					}
@@ -124,7 +124,7 @@ module.exports.delete = function(grunt, files, getName, info, done) {
 		var f = grunt.option('src');		
 		url = url + '/v1/organizations/' + org + '/'+info.plural+'/';
 
-		grunt.log.writeln('Found '+info.single+' files: '+ files.length + '. Removing same '+info.plural+' from dest...');
+		grunt.log.writeln('Found '+info.single+' files: '+ files.length + '. Removing same ' + info.plural + ' from dest...');
 
 		// perform deletion by MAX_ITEMS_AT_ONCE items in one async     
 		async.forEachLimit(files, MAX_ITEMS_AT_ONCE, function(filepath, callback) {

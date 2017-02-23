@@ -49,7 +49,22 @@ module.exports = function(grunt) {
     importDevApps: {
         src: 'data/apps/dev/*/*'
     },
+    importDevCompanies: {
+        src: 'data/devs/*'
+    },
+    updateDevApps: {
+        src: 'data/apps/dev/*/*'
+    },
+    deleteDevAppsProduct: {
+        src: 'data/apps/dev/*/*'
+    },    
     importCompanyApps: {
+        src: 'data/apps/company/*/*'
+    },
+    updateCompanyApps: {
+        src: 'data/apps/company/*/*'
+    },
+    deleteCompanyAppsProduct: {
         src: 'data/apps/company/*/*'
     },
     importKeys: {

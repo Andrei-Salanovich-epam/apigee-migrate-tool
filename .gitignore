@@ -29,3 +29,7 @@ node_modules
 
 #data files
 data/*
+data-us/
+data-us_old/
+data-eu_old/
+data-eu/
