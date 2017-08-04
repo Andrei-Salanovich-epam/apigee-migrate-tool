@@ -14,8 +14,7 @@ var getFileName = function(d) { return d.email; };
 module.exports = function(grunt) {
 	'use strict';
 	grunt.registerTask('exportDevs', 'Export all developers from org ' + apigee.from.org + " [" + apigee.from.version + "]", function() {
-		var done = this.async();
-		
+		var done = this.async();		
 		migration.export(grunt, grunt.config.get("exportDevs.dest.data"), info, getFileName, done);
 	});
 

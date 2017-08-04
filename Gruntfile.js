@@ -12,13 +12,16 @@ module.exports = function(grunt) {
         },
     exportDevs: {
        dest: './data/devs'       
-    },
+    },    
+    exportDevEmails: {
+        src: 'data/devs/*'
+    },   
     exportProducts: {
        dest: './data/products'       
     },
     exportDevApps: {
-       dest: './data/apps/dev'       
-    },
+       dest: './data/apps/dev'
+    },   
     exportCompanyApps: {
        dest: './data/apps/company'       
     },
@@ -42,7 +45,7 @@ module.exports = function(grunt) {
     },
     importProducts: {
         src: 'data/products/*'
-    },
+    },   
     importDevs: {
         src: 'data/devs/*'
     },
@@ -120,7 +123,6 @@ module.exports = function(grunt) {
         in_apps: './input/apps.csv',
         out_apps: './data/apps/'
     }
-
   });
 
   require('load-grunt-tasks')(grunt);
@@ -129,7 +131,7 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['availabletasks']);
   grunt.registerTask('exportAll', ['exportDevs','exportCompanies','exportProducts','exportDevApps','exportCompanyApps', 'exportProxies', 'exportOrgKVM', 'exportEnvKVM', 'exportProxyKVM']);
   grunt.registerTask('importAll', ['importProxies','importDevs','importCompanies','importProducts', 'importDevApps', 'importCompanyApps', 'importOrgKVM', 'importEnvKVM', 'importProxyKVM']);
-  grunt.registerTask('deleteAll', ['warn','deleteDevApps', 'deleteCompanyApps' ,'deleteCompanies','deleteProducts', 'deleteDevs', 'deleteProxies', 'deleteOrgKVM', 'deleteEnvKVM', 'deleteProxyKVM']);
+  grunt.registerTask('deleteAll', ['warn','deleteDevApps', 'deleteCompanyApps' ,'deleteCompanies','deleteProducts', 'deleteDevs', 'deleteProxies', 'deleteOrgKVM', 'deleteEnvKVM', 'deleteProxyKVM']);  
 
   grunt.registerTask('warn', 'Display Warning', function() {
       var readline = require('readline');
