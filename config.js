@@ -1,21 +1,13 @@
 module.exports = {
 
-	// from: {
-	// 	version: '14.01',
-	// 	url: 'http://10.129.104.88:8080',
-	// 	userid: 'api-admin@syncplicity.com',
-	// 	passwd: 'SFAfwF21@4a',
-	// 	org: 'syncplicity',
-	// 	env: 'prod'
-	// },
-	from: {
-		version: '14.01',
-		url: 'https://smartdocs.syncplicity.com/management', //https://smartdocs.eu.syncplicity.com/management
-		userid: '<userId>',
-		passwd: '<userPassword>',
-		org: 'syncplicity',
-		env: 'prod'
-	},
+	 from: {
+	 	version: '14.01',
+	 	url: 'http://10.129.104.88:8080',
+	 	userid: 'api-admin@syncplicity.com',
+	 	passwd: 'SFAfwF21@4a',
+	 	org: 'syncplicity',
+	 	env: 'prod'
+	},	
 
 	to: {
 		version: '15.01',
