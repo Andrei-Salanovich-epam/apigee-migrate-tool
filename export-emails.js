@@ -68,7 +68,7 @@ var getSqlScriptData = function(){
 
         text = text.substring(0, text.length - 2);
 
-        let sqlScript = `SELECT '"' + ua.Email + '"' as Email, '"' + convert(nvarchar(50), c.CompanyGUID) + ':' + c.CompanyName + '"' as CompanyId, '"' + c.CompanyName + '"' as CompanyName FROM UserAccount as ua
+        let sqlScript = `SELECT '"' + ua.Email + '"' as Email, ua.UserGuid as PhoneNumber, '"' + convert(nvarchar(50), c.CompanyGUID) + ':' + c.CompanyName + '"' as CompanyId, '"' + c.CompanyName + '"' as CompanyName FROM UserAccount as ua
                     INNER JOIN UserCompany as uc ON uc.UserId = ua.UserId
                     INNER JOIN Company as c ON c.CompanyId = uc.CompanyId
                     WHERE ua.[Enabled] = '1'
