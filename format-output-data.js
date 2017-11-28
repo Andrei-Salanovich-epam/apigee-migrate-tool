@@ -10,14 +10,24 @@ let recursive = require("recursive-readdir");
         if(!company.credentials)
             return;
 
+        const attrbutesToUpdate = ["displayname", "description"]
+
         _.each(company.attributes, attr => {
+            if(attrbutesToUpdate.indexOf(attr.name.toLowerCase()) < 0)
+                return;
+
             let maxLenght = 50;
-            if(attr.name === 'DisplayName')
-                maxLenght = 19;
+            if(attr.name === 'DisplayName'){
+                if(attr.value.match(/^\d+$/)){
+                    console.log(`application name contains only digits: ${attr.value}. Updated to _${attr.value}`);
+                    attr.value = `_${attr.value}`;
+                }
+            }
+                
 
             if(attr.value && attr.value.length >= maxLenght){
                 attr.value = attr.value.substring(0, maxLenght - 1);
-                console.log(`attribute: ${attr.name} has been cut on ${file}`);         
+                console.log(`attribute: ${attr.name} has been cut on ${file}`);
             }
 
             if(attr.value.indexOf('\r\n') > 0){
@@ -46,6 +56,6 @@ let recursive = require("recursive-readdir");
             }
         });
 
-        fs.writeFileSync(file, JSON.stringify(company), "utf8");    
+        fs.writeFileSync(file, JSON.stringify(company), "utf8");
     });
 });    
