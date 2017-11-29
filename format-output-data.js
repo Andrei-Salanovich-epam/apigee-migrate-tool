@@ -26,7 +26,7 @@ let recursive = require("recursive-readdir");
                 
 
             if(attr.value && attr.value.length >= maxLenght){
-                attr.value = attr.value.substring(0, maxLenght - 1);
+                attr.value = attr.value.substring(0, maxLenght - 4) + '...';
                 console.log(`attribute: ${attr.name} has been cut on ${file}`);
             }
 
