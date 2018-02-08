@@ -97,6 +97,24 @@ var getKeys = function(){
     });    
 }
 
+const getEmcKeys = () => {
+    recursive("data/apps/company", [], function (err, files) {
+        _.each(files, (file) => {
+            const content = fs.readFileSync(file, "utf8");
+            if(content.indexOf("@emc.com") >= 0 || content.indexOf("@dell.com") >= 0){
+                var company = JSON.parse(content);
+                var creator = 
+
+                company.attributes.forEach(attr => {
+                //    attr.DispplayValue 
+                });
+                console.log("'" + company.credentials[0].consumerKey + "',");
+            }
+        });
+    });    
+}
+
+//getEmcKeys();
 //getKeys();
 //getAllEmails();
 getSqlScriptData();
