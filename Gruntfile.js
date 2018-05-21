@@ -13,9 +13,6 @@ module.exports = function(grunt) {
     exportDevs: {
        dest: './data/devs'       
     },    
-    exportDevEmails: {
-        src: 'data/devs/*'
-    },   
     exportProducts: {
        dest: './data/products'       
     },
