@@ -1,8 +1,52 @@
 var request = require('request');
 var apigee = require('../config.js');
 var async = require('async');
-
+const fs = require('fs');
 var MAX_ITEMS_AT_ONCE = 50;
+
+module.exports.exportAudit = (grunt, done) => {
+	const devs =fs.readdirSync('./data/devs');
+	let doneCount = 0;
+	let errorCount = 0;
+
+	const error = (err) => {
+		if (err) {
+			grunt.log.error(err);
+			return done(false);
+		}
+		done();
+	};
+
+	const procceedDevEmail = (item, callback) => {
+		const url =  apigee.from.url + '/v1/audits/organizations/' + apigee.from.org + '/developers/' + item + '?expand=true&timeline=month';
+		grunt.verbose.writeln(`Calling: ${url}`);
+
+		request(url, function (error, response, body) {
+			if (!error && response.statusCode == 200) {
+				grunt.verbose.write(body);
+				var details =  JSON.parse(body);
+				var auditFileName = `./data/audit/${item}`;
+
+				grunt.file.write(auditFileName, body);
+			}
+			else
+			{
+				grunt.log.error(error);
+				errorCount++;
+			}
+			doneCount++;
+			
+			if (doneCount == devs.length)
+			{
+				grunt.log.ok('Audit Exported ' + doneCount +  'Failed: ' + errorCount);
+				done();
+			}
+			callback();
+		}).auth(apigee.from.userid,  apigee.from.passwd, true);
+	};
+
+	async.forEachLimit(devs, MAX_ITEMS_AT_ONCE, procceedDevEmail, error);
+};
 
 module.exports.export = function(grunt, filepath, info, getFileName, done) {
 		var devs;
