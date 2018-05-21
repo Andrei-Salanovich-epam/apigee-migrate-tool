@@ -111,14 +111,6 @@ module.exports = function(grunt) {
     },
     deleteCompanies: {
         src: 'data/companies/*'
-    },
-    readCSVDevs: {
-        in_devs: './input/devs.csv',
-        out_devs: './data/devs/'   
-      },
-    readCSVApps: {
-        in_apps: './input/apps.csv',
-        out_apps: './data/apps/'
     }
   });
 
